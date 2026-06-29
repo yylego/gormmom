@@ -3,7 +3,7 @@
 
 //go:build !gormcngen_generate
 
-// Generated from: gormcnm_test.go:37 -> models.TestGenGormMomAndCnm.func2
+// Generated from: gormcnm_test.go:33 -> models.TestGenGormMomAndCnm.func2
 // ========== GORMCNGEN:DO-NOT-EDIT-MARKER:END ==========
 
 package models
@@ -16,12 +16,12 @@ func (T *Tユーザー) Columns() *TユーザーColumns {
 	return &TユーザーColumns{
 		// Auto-generated: column names and types mapping. DO NOT EDIT. // 自动生成：列名和类型映射。请勿编辑。
 		ID:     gormcnm.Cnm(T.ID, "id"),
-		Uユーザー名: gormcnm.Cnm(T.Uユーザー名, "u_e630_fc30_b630_fc30_0d54"),
-		Eメール:   gormcnm.Cnm(T.Eメール, "e_e130_fc30_eb30"),
-		A年齢:    gormcnm.Cnm(T.A年齢, "a_745e_629f"),
-		D電話:    gormcnm.Cnm(T.D電話, "d_fb96_718a"),
-		J住所:    gormcnm.Cnm(T.J住所, "j_4f4f_4062"),
-		Sステータス: gormcnm.Cnm(T.Sステータス, "s_b930_c630_fc30_bf30_b930"),
+		Uユーザー名: gormcnm.Cnm(T.Uユーザー名, "username"),
+		Eメール:   gormcnm.Cnm(T.Eメール, "email"),
+		A年齢:    gormcnm.Cnm(T.A年齢, "age"),
+		D電話:    gormcnm.Cnm(T.D電話, "phone"),
+		J住所:    gormcnm.Cnm(T.J住所, "address"),
+		Sステータス: gormcnm.Cnm(T.Sステータス, "status"),
 	}
 }
 

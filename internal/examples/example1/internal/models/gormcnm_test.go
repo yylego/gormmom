@@ -7,7 +7,6 @@ import (
 	"github.com/yylego/gormcngen"
 	"github.com/yylego/gormmom"
 	"github.com/yylego/osexistpath/osmustexist"
-	"github.com/yylego/runpath"
 	"github.com/yylego/runpath/runtestpath"
 )
 
@@ -17,14 +16,10 @@ func TestGen(t *testing.T) {
 	}
 
 	require.True(t, t.Run("GenGormMom", func(t *testing.T) {
-		params := gormmom.ParseObjects(runpath.PARENT.Path(), objects)
-
-		cfg := gormmom.NewConfigs(params, gormmom.NewOptions())
+		cfg := gormmom.NewConfigs(objects, gormmom.NewOptions())
 		t.Log(cfg)
 
-		result := cfg.Generate()
-		require.False(t, result.HasChange()) // 因为已经替换过，而且写到了新代码里，因此这里就只能是没有变化
-		require.NoError(t, cfg.ValidateGormTags())
+		require.NoError(t, cfg.Validate())
 	}))
 
 	// 使用 require.True(t, t.Run(---)) 限制只有前一步成功才执行后一步的

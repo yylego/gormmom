@@ -3,7 +3,7 @@
 
 //go:build !gormcngen_generate
 
-// Generated from: gormcnm_test.go:43 -> models.TestGen.func2
+// Generated from: gormcnm_test.go:38 -> models.TestGen.func2
 // ========== GORMCNGEN:DO-NOT-EDIT-MARKER:END ==========
 
 package models
@@ -19,14 +19,14 @@ func (T *Example) Columns() *ExampleColumns {
 	return &ExampleColumns{
 		// Auto-generated: column names and types mapping. DO NOT EDIT. // 自动生成：列名和类型映射。请勿编辑。
 		ID:        gormcnm.Cnm(T.ID, "id"),
-		V名称:       gormcnm.Cnm(T.V名称, "v_0d54_f079"),
-		V字段:       gormcnm.Cnm(T.V字段, "v_575b_b56b"),
-		V性别:       gormcnm.Cnm(T.V性别, "v_2760_2b52"),
-		V特殊:       gormcnm.Cnm(T.V特殊, "v_7972_8a6b"),
-		V年龄:       gormcnm.Cnm(T.V年龄, "v_745e_849f"),
+		V名称:       gormcnm.Cnm(T.V名称, "name"),
+		V字段:       gormcnm.Cnm(T.V字段, "field"),
+		V性别:       gormcnm.Cnm(T.V性别, "gender"),
+		V特殊:       gormcnm.Cnm(T.V特殊, "special"),
+		V年龄:       gormcnm.Cnm(T.V年龄, "age"),
 		Rank:      gormcnm.Cnm(T.Rank, "rank"),
-		V身高:       gormcnm.Cnm(T.V身高, "v_ab8e_d89a"),
-		V体重:       gormcnm.Cnm(T.V体重, "v_534f_cd91"),
+		V身高:       gormcnm.Cnm(T.V身高, "height"),
+		V体重:       gormcnm.Cnm(T.V体重, "weight"),
 		CreatedAt: gormcnm.Cnm(T.CreatedAt, "created_at"),
 		UpdatedAt: gormcnm.Cnm(T.UpdatedAt, "updated_at"),
 	}
@@ -53,14 +53,14 @@ func (T *Example2) Columns() *Example2Columns {
 	return &Example2Columns{
 		// Auto-generated: column names and types mapping. DO NOT EDIT. // 自动生成：列名和类型映射。请勿编辑。
 		ID:        gormcnm.Cnm(T.ID, "id"),
-		V名称:       gormcnm.Cnm(T.V名称, "V_0D54_F079"),
-		V字段:       gormcnm.Cnm(T.V字段, "v_575b_b56b"),
-		V性别:       gormcnm.Cnm(T.V性别, "v_2760_2b52"),
-		V特殊:       gormcnm.Cnm(T.V特殊, "V_7972_8A6B"),
-		V年龄:       gormcnm.Cnm(T.V年龄, "v_745e_849f"),
+		V名称:       gormcnm.Cnm(T.V名称, "name"),
+		V字段:       gormcnm.Cnm(T.V字段, "field"),
+		V性别:       gormcnm.Cnm(T.V性别, "gender"),
+		V特殊:       gormcnm.Cnm(T.V特殊, "special"),
+		V年龄:       gormcnm.Cnm(T.V年龄, "age"),
 		Rank:      gormcnm.Cnm(T.Rank, "rank"),
-		V身高:       gormcnm.Cnm(T.V身高, "V_AB8E_D89A"),
-		V体重:       gormcnm.Cnm(T.V体重, "v_534f_cd91"),
+		V身高:       gormcnm.Cnm(T.V身高, "height"),
+		V体重:       gormcnm.Cnm(T.V体重, "weight"),
 		CreatedAt: gormcnm.Cnm(T.CreatedAt, "created_at"),
 		UpdatedAt: gormcnm.Cnm(T.UpdatedAt, "updated_at"),
 	}

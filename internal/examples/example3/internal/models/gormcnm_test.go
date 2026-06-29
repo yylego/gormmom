@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/yylego/gormcngen"
 	"github.com/yylego/gormmom"
-	"github.com/yylego/runpath"
 	"github.com/yylego/runpath/runtestpath"
 )
 
@@ -16,13 +15,10 @@ func TestGenGormMomAndCnm(t *testing.T) {
 	}
 
 	require.True(t, t.Run("GenGormMom", func(t *testing.T) {
-		params := gormmom.ParseObjects(runpath.PARENT.Path(), objects)
-		cfg := gormmom.NewConfigs(params, gormmom.NewOptions())
+		cfg := gormmom.NewConfigs(objects, gormmom.NewOptions())
 		t.Log("第一步：使用 gormmom 生成韩语字段的 mom 标签")
 
-		result := cfg.Generate()
-		require.False(t, result.HasChange()) // 因为已经替换过，而且写到了新代码里，因此这里就只能是没有变化
-		require.NoError(t, cfg.ValidateGormTags())
+		require.NoError(t, cfg.Validate())
 	}))
 
 	require.True(t, t.Run("GenGormCnm", func(t *testing.T) {
