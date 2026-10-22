@@ -1,9 +1,13 @@
+<!-- TEMPLATE (ZH) BEGIN: BADGES -->
+
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yylego/gormmom/release.yml?branch=main&label=BUILD)](https://github.com/yylego/gormmom/actions/workflows/release.yml?query=branch%3Amain)
 [![GoDoc](https://pkg.go.dev/badge/github.com/yylego/gormmom)](https://pkg.go.dev/github.com/yylego/gormmom)
 [![Coverage Status](https://img.shields.io/coveralls/github/yylego/gormmom/main.svg)](https://coveralls.io/github/yylego/gormmom?branch=main)
-[![Supported Go Versions](https://img.shields.io/badge/Go-1.25+-lightgrey.svg)](https://go.dev/)
+[![Supported Go Versions](https://img.shields.io/badge/Go-1.27%2B-lightgrey.svg)](https://go.dev/)
 [![GitHub Release](https://img.shields.io/github/release/yylego/gormmom.svg)](https://github.com/yylego/gormmom/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yylego/gormmom)](https://goreportcard.com/report/github.com/yylego/gormmom)
+
+<!-- TEMPLATE (ZH) CLOSE: BADGES -->
 
 # 🌍 GORMMOM - GORM 原生语言命名把关器
 
@@ -41,7 +45,7 @@ gormmom 过去是个**生成引擎**：你用母语写字段、把 tag 留空，
 
 [ENGLISH README](README.md)
 
-<!-- TEMPLATE (ZH) END: LANGUAGE NAVIGATION -->
+<!-- TEMPLATE (ZH) CLOSE: LANGUAGE NAVIGATION -->
 
 ---
 
@@ -96,7 +100,7 @@ gormmom 从不连接数据库，它作为一个普通单元测试运行：
 
 ```go
 func TestValidateNaming(t *testing.T) {
-    objects := []interface{}{
+    objects := []any{
         &T账户信息{},
     }
 
@@ -195,7 +199,7 @@ gormmom 只负责把关命名。生成类型安全的列访问器、做仓储式
 - **[gormcngen](https://github.com/yylego/gormcngen)** - 使用 AST 的代码生成引擎，支持类型安全的 GORM 操作
 - **[gormrepo](https://github.com/yylego/gormrepo)** - 遵循 GORM 最佳实践的仓储模式实现
 - **[gormmom](https://github.com/yylego/gormmom)** - 原生语言 GORM 命名把关器——校验表名/列名/索引名是否数据库安全（本项目）
-- **[gormzhcn](https://github.com/go-zwbc/gormzhcn)** - 完整的中文 GORM 编程接口
+- **[gormzhcn](https://github.com/yylego/gormzhcn)** - 完整的中文 GORM 编程接口
 
 每个包针对 GORM 开发的不同方面，包括本地化、类型安全操作和代码生成。
 
@@ -259,10 +263,4 @@ MIT 许可证 - 详见 [LICENSE](LICENSE)。
 
 **祝你用这个包编程愉快！** 🎉🎉🎉
 
-<!-- TEMPLATE (ZH) END: STANDARD PROJECT FOOTER -->
-
----
-
-## 📈 GitHub Stars
-
-[![Stargazers](https://starchart.cc/yylego/gormmom.svg?variant=adaptive)](https://starchart.cc/yylego/gormmom)
+<!-- TEMPLATE (ZH) CLOSE: STANDARD PROJECT FOOTER -->

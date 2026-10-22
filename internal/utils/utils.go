@@ -15,7 +15,7 @@ import (
 //
 // ParseSchema 通过反射把对象解析成 GORM 模式，用传入的命名策略推导表名/列名/索引名。
 // namer 为 nil 时回退到 GORM 的默认策略。
-func ParseSchema(object interface{}, namer schema.Namer) *schema.Schema {
+func ParseSchema(object any, namer schema.Namer) *schema.Schema {
 	if namer == nil {
 		namer = schema.NamingStrategy{}
 	}

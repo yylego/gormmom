@@ -1,9 +1,13 @@
+<!-- TEMPLATE (EN) BEGIN: BADGES -->
+
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yylego/gormmom/release.yml?branch=main&label=BUILD)](https://github.com/yylego/gormmom/actions/workflows/release.yml?query=branch%3Amain)
 [![GoDoc](https://pkg.go.dev/badge/github.com/yylego/gormmom)](https://pkg.go.dev/github.com/yylego/gormmom)
 [![Coverage Status](https://img.shields.io/coveralls/github/yylego/gormmom/main.svg)](https://coveralls.io/github/yylego/gormmom?branch=main)
-[![Supported Go Versions](https://img.shields.io/badge/Go-1.25+-lightgrey.svg)](https://go.dev/)
+[![Supported Go Versions](https://img.shields.io/badge/Go-1.27%2B-lightgrey.svg)](https://go.dev/)
 [![GitHub Release](https://img.shields.io/github/release/yylego/gormmom.svg)](https://github.com/yylego/gormmom/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yylego/gormmom)](https://goreportcard.com/report/github.com/yylego/gormmom)
+
+<!-- TEMPLATE (EN) CLOSE: BADGES -->
 
 # 🌍 GORMMOM - Native Language GORM Naming Guardian
 
@@ -41,7 +45,7 @@ So gormmom dropped generation entirely and now does exactly one thing: **catch t
 
 [中文说明](README.zh.md)
 
-<!-- TEMPLATE (EN) END: LANGUAGE NAVIGATION -->
+<!-- TEMPLATE (EN) CLOSE: LANGUAGE NAVIGATION -->
 
 ---
 
@@ -96,7 +100,7 @@ gormmom never connects to a database; it runs as a plain unit test:
 
 ```go
 func TestValidateNaming(t *testing.T) {
-    objects := []interface{}{
+    objects := []any{
         &T账户信息{},
     }
 
@@ -195,7 +199,7 @@ Explore the complete GORM ecosystem with these integrated packages:
 - **[gormcngen](https://github.com/yylego/gormcngen)** - AST-based code generation engine with type-safe GORM operations
 - **[gormrepo](https://github.com/yylego/gormrepo)** - Repo pattern implementation with GORM best practices
 - **[gormmom](https://github.com/yylego/gormmom)** - Native language GORM naming guardian — validates table/column/index names are database-safe (this project)
-- **[gormzhcn](https://github.com/go-zwbc/gormzhcn)** - Complete Chinese programming interface with GORM
+- **[gormzhcn](https://github.com/yylego/gormzhcn)** - Complete Chinese programming interface with GORM
 
 Each package targets different aspects of GORM development, including localization, type-safe operations, and code generation.
 
@@ -259,10 +263,4 @@ Welcome to contribute to this project via submitting merge requests and reportin
 
 **Have Fun Coding with this package!** 🎉🎉🎉
 
-<!-- TEMPLATE (EN) END: STANDARD PROJECT FOOTER -->
-
----
-
-## 📈 GitHub Stars
-
-[![Stargazers](https://starchart.cc/yylego/gormmom.svg?variant=adaptive)](https://starchart.cc/yylego/gormmom)
+<!-- TEMPLATE (EN) CLOSE: STANDARD PROJECT FOOTER -->

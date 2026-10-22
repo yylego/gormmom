@@ -11,7 +11,7 @@ type Config struct {
 // NewConfig builds a Config from an object plus options, parsing the object by reflection.
 //
 // NewConfig 用对象和选项构造 Config，通过反射解析对象
-func NewConfig(object interface{}, options *Options) *Config {
+func NewConfig(object any, options *Options) *Config {
 	return &Config{
 		structI: parseObject(object, options.NamingStrategy),
 		options: options,

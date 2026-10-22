@@ -7,15 +7,15 @@ import (
 )
 
 type Example1 struct {
-	Name string `gorm:"column:name"`
-	Age  int    `gorm:"column:age"`
-	Sex  bool   `gorm:"column:sex"`
+	Name     string `gorm:"column:name"`
+	Age      int    `gorm:"column:age"`
+	Enrolled bool   `gorm:"column:enrolled"`
 }
 
 type Example2 struct {
 	V姓名 string `gorm:"column:name"`
 	V年龄 int    `gorm:"column:age"`
-	V性别 bool   `gorm:"column:sex"`
+	V在读 bool   `gorm:"column:enrolled"`
 }
 
 func TestNewConfigs(t *testing.T) {

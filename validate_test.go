@@ -24,7 +24,7 @@ func (*Product1) TableName() string {
 }
 
 func TestConfigs_Validate(t *testing.T) {
-	objects := []interface{}{
+	objects := []any{
 		&Product1{},
 	}
 
@@ -61,13 +61,13 @@ type badTable struct {
 func (*badTable) TableName() string { return "-" }
 
 func TestConfigs_Validate_CatchesBadNaming(t *testing.T) {
-	for name, object := range map[string]interface{}{
+	for name, object := range map[string]any{
 		"bad-column": &badColumn{},
 		"bad-index":  &badIndex{},
 		"bad-table":  &badTable{},
 	} {
 		t.Run(name, func(t *testing.T) {
-			err := gormmom.NewConfigs([]interface{}{object}, gormmom.NewOptions()).Validate()
+			err := gormmom.NewConfigs([]any{object}, gormmom.NewOptions()).Validate()
 			require.Error(t, err)
 			t.Log(err)
 		})

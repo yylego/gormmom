@@ -33,6 +33,6 @@ func newGormStruct(structName string, gormSchema *schema.Schema) *gormStruct {
 // parseObject 通过反射从对象实例构造 gormStruct
 // 不读取任何磁盘文件；模式完全来自反射
 // namer 决定字段名如何转成数据库名字，因此用和项目里 GORM 相同的策略才能校验到一致的名字
-func parseObject(object interface{}, namer schema.Namer) *gormStruct {
+func parseObject(object any, namer schema.Namer) *gormStruct {
 	return newGormStruct(syntaxgo_reflect.GetTypeNameV3(object), utils.ParseSchema(object, namer))
 }

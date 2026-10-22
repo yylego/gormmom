@@ -8,7 +8,7 @@ type Configs []*Config
 // NewConfigs builds a batch from objects plus shared options, parsing each by reflection.
 //
 // NewConfigs 用对象集合和共享选项构造一批配置，逐个通过反射解析
-func NewConfigs(objects []interface{}, options *Options) Configs {
+func NewConfigs(objects []any, options *Options) Configs {
 	var configs = make([]*Config, 0, len(objects))
 	for _, object := range objects {
 		configs = append(configs, NewConfig(object, options))
