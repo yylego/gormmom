@@ -9,27 +9,19 @@
 
 <!-- TEMPLATE (ZH) CLOSE: BADGES -->
 
-# 🌍 GORMMOM - GORM 原生语言命名把关器
+# 🌍 GORMMOM - GORM 母语命名把关器
 
-**gormmom** 让你用 **母语**（中文、日文、韩文等）编写 GORM 模型，然后**把关**模型产出的每一个数据库名字——表名、每个列名、每个索引名——都是数据库安全的。它作为一个普通单元测试运行，**完全不连接数据库**。
+**gormmom** 让你用**母语**（中文、日文、韩文等）编写 GORM 模型，然后检查模型产出的每个数据库名字——表名、每个列名、每个索引名——都是数据库安全的。它作为普通单元测试运行，完全不连接数据库。
 
 > 🎯 **用母语编程，交付数据库安全的表结构。** gormmom 在母语命名进入数据库之前，就替你抓出数据库会拒绝的那些名字。
 
 ---
 
-## 🤖 为什么 gormmom 现在只是个把关器（AI 时代的简化）
+## 🤖 设计意图
 
-gormmom 过去是个**生成引擎**：你用母语写字段、把 tag 留空，它替你自动拼出列名和索引名（中文拼音、日文罗马音等等）。
+gormmom 过去会替你拼出列名和索引名（中文拼音、日文罗马音等）。现在你定义字段的那一刻，AI 助手就能写出又好又数据库安全的名字，所以生成这一层已经去掉了。
 
-**AI 时代让这种生成失去了意义。** 今天，你定义字段的那一刻，AI 助手就能直接、结合上下文，替你写出一个又好又数据库安全的列名——远比任何固定规则引擎拼出来的强。机器生成的 `z_zhang_hao` 从来就不是谁真正想要的。于是整个生成层就没有存在的理由了。
-
-而 AI **不会**自动替你保证的，恰恰是那个仍然会咬你一口的环节：**校验**。当你用母语编程时，GORM 可能把字段变成一个非 ASCII 的列名，或者用母语字段名拼出一个复合索引名——这两种数据库都会拒绝。这种问题暴露得很晚，往往是在迁移或运行时才炸。
-
-所以 gormmom 彻底砍掉了生成，现在只做一件事：**在一个不连数据库的单元测试里，把这些命名问题抓出来**，让它们不会在后面才爆炸。
-
-- ❌ 已移除：代码生成、拼音/罗马音列名拼装、模式枚举、旧的生成命令。
-- ✅ 已保留：唯一职责——校验表名 / 列名 / 索引名是否数据库安全。
-- ✅ 零数据库连接——一个纯静态检查，作为普通单元测试运行。
+仍然会出问题的是漏网的名字：字段没写列名、索引没写名字，GORM 就会产出非 ASCII 的名字，数据库要到迁移或运行时才拒绝。gormmom 只做这一项检查，在不连数据库的单元测试里完成。
 
 ---
 
@@ -64,10 +56,10 @@ go get github.com/yylego/gormmom
 母语字段读起来很自然，但 GORM 从中推导出的名字，可能正是数据库拒绝的名字：
 
 ```go
-type T账户信息 struct {
-    ID   uint   `gorm:"primaryKey"`
-    Z账号 string `gorm:"uniqueIndex"` // ❌ 没写索引名 → GORM 用字段名拼索引 → 非 ASCII → 被拒绝
-    N昵称 string `gorm:""`            // ❌ 没写列名 → 列名落到非 ASCII → 被拒绝
+type T学生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"uniqueIndex"` // ❌ 没写列名和索引名 → GORM 用字段名拼出两者 → 非 ASCII → 被拒绝
+    B班级 string `gorm:""`            // ❌ 没写列名 → 列名落到非 ASCII → 被拒绝
 }
 ```
 
@@ -76,19 +68,15 @@ type T账户信息 struct {
 保留母语字段名，但显式给出数据库安全的列名 / 索引名 / 表名——然后让 gormmom 在单元测试里替你把关：
 
 ```go
-type T账户信息 struct {
-    ID   uint   `gorm:"primaryKey"`
-    Z账号 string `gorm:"column:account;uniqueIndex:udx_account"`
-    N昵称 string `gorm:"column:nickname;index:idx_nickname"`
-    A年龄 int    `gorm:"column:age"`
-    D电话 string `gorm:"column:phone"`
-    E邮箱 string `gorm:"column:mailbox"`
-    J住址 string `gorm:"column:address"`
-    S状态 string `gorm:"column:status;index:idx_status"`
+type T学生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    B班级 string `gorm:"column:grade;index:idx_students_grade"`
+    S社团 string `gorm:"column:club"`
 }
 
-func (*T账户信息) TableName() string {
-    return "accounts" // 数据库安全的 ASCII 表名
+func (*T学生) TableName() string {
+    return "students" // 数据库安全的 ASCII 表名
 }
 ```
 
@@ -101,7 +89,7 @@ gormmom 从不连接数据库，它作为一个普通单元测试运行：
 ```go
 func TestValidateNaming(t *testing.T) {
     objects := []any{
-        &T账户信息{},
+        &T学生{},
     }
 
     // 直接从模型组装校验配置（纯反射，不读取任何磁盘文件）
@@ -112,63 +100,147 @@ func TestValidateNaming(t *testing.T) {
 }
 ```
 
-规则就是一条正则：每个名字都要匹配 `^[a-zA-Z0-9_]{1,N}$`（N 默认 63，可通过 `Options.MaxNameLength` 调整）。校验失败会返回一个清晰的错误，指出是哪个结构体、哪个名字出了问题（涉及具体字段时也会一并指出）——远在任何迁移发生之前就被抓住。
+规则就是一条正则：每个名字都要匹配 `^[a-zA-Z0-9_]{1,N}$`。查到第一个不合格的名字就报错，错误里写明结构体、名字、涉及的字段，以及该补什么。
 
-默认情况下 gormmom 用 GORM 的默认命名策略来推导名字。如果你的项目用了自定义命名策略，请通过 `Options.NamingStrategy` 传进来，让校验结果和数据库实际看到的一致。
+选项从 `gormmom.NewOptions()` 开始：长度上限 N 默认 63，跟 Postgres 一样，`WithMaxNameLength(n)` 可以换成别的上限；名字按 GORM 默认的命名策略推导，`WithNamingStrategy(namer)` 只给用了自定义命名策略的项目用。
 
 ---
 
 ## 🌍 多语言示例
 
-每种语言的模式都一样：母语字段名，加上显式的、数据库安全的列名 / 索引名 / 表名，由 gormmom 校验。
+每种语言的写法都一样：母语字段名，加上显式的、数据库安全的列名 / 索引名 / 表名。每种语言各有一个示例，注释用的就是那门语言。
 
-### 繁體中文
+### 繁體中文 — [example2](internal/examples/example2)
 
 ```go
-type T賬戶信息 struct {
+type T學生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    N年級 string `gorm:"column:grade;index:idx_students_grade"`
+    S社團 string `gorm:"column:club"`
+}
+
+func (*T學生) TableName() string {
+    return "students"
+}
+```
+
+### 日本語 — [example3](internal/examples/example3)
+
+```go
+type T生徒 struct {
     ID   uint   `gorm:"primaryKey"`
-    Z賬號 string `gorm:"column:account;uniqueIndex:udx_account"`
-    N暱稱 string `gorm:"column:nickname;index:idx_nickname"`
-    A年齡 int    `gorm:"column:age"`
-    S狀態 string `gorm:"column:status;index:idx_status"`
+    N名前  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    G学年  string `gorm:"column:grade;index:idx_students_grade"`
+    Tクラブ string `gorm:"column:club"`
 }
 
-func (*T賬戶信息) TableName() string {
-    return "accounts"
-}
-```
-
-### 日本語
-
-```go
-type Tアカウント情報 struct {
-    ID         uint   `gorm:"primaryKey"`
-    Aアカウント  string `gorm:"column:account;uniqueIndex:udx_account"`
-    Nニックネーム string `gorm:"column:nickname;index:idx_nickname"`
-    N年齢       int    `gorm:"column:age"`
-    Sステータス   string `gorm:"column:status;index:idx_status"`
-}
-
-func (*Tアカウント情報) TableName() string {
-    return "accounts"
+func (*T生徒) TableName() string {
+    return "students"
 }
 ```
 
-### 한국어
+### 한국어 — [example4](internal/examples/example4)
 
 ```go
-type T계정정보 struct {
+type T학생 struct {
+    ID   uint   `gorm:"primaryKey"`
+    I이름  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    H학년  string `gorm:"column:grade;index:idx_students_grade"`
+    D동아리 string `gorm:"column:club"`
+}
+
+func (*T학생) TableName() string {
+    return "students"
+}
+```
+
+### Español — [example5](internal/examples/example5)
+
+西班牙语的字母有大小写，字段不用加 ASCII 前缀。大部分单词本身就是 ASCII，但带重音的字段（如 `Año`）会产出非 ASCII 的列名，所以同样要写明列名：
+
+```go
+type Estudiante struct {
+    ID     uint   `gorm:"primaryKey"`
+    Nombre string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Año    string `gorm:"column:grade;index:idx_students_grade"`
+    Club   string `gorm:"column:club"`
+}
+
+func (*Estudiante) TableName() string {
+    return "students"
+}
+```
+
+### Português — [example6](internal/examples/example6)
+
+带重音的字段（如 `Série`）会产出非 ASCII 的列名，所以要写明列名：
+
+```go
+type Aluno struct {
     ID    uint   `gorm:"primaryKey"`
-    G계정   string `gorm:"column:account;uniqueIndex:udx_account"`
-    N닉네임  string `gorm:"column:nickname;index:idx_nickname"`
-    N나이   int    `gorm:"column:age"`
-    S상태   string `gorm:"column:status;index:idx_status"`
+    Nome  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Série string `gorm:"column:grade;index:idx_students_grade"`
+    Clube string `gorm:"column:club"`
 }
 
-func (*T계정정보) TableName() string {
-    return "accounts"
+func (*Aluno) TableName() string {
+    return "students"
 }
 ```
+
+### Français — [example7](internal/examples/example7)
+
+带重音的字段（如 `Prénom`）会产出非 ASCII 的列名，所以要写明列名：
+
+```go
+type Élève struct {
+    ID     uint   `gorm:"primaryKey"`
+    Prénom string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Classe string `gorm:"column:grade;index:idx_students_grade"`
+    Club   string `gorm:"column:club"`
+}
+
+func (*Élève) TableName() string {
+    return "students"
+}
+```
+
+### Deutsch — [example8](internal/examples/example8)
+
+带变音符号的结构体名（如 `Schüler`）会产出非 ASCII 的表名，所以要写 `TableName()` 方法：
+
+```go
+type Schüler struct {
+    ID     uint   `gorm:"primaryKey"`
+    Name   string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Klasse string `gorm:"column:grade;index:idx_students_grade"`
+    Verein string `gorm:"column:club"`
+}
+
+func (*Schüler) TableName() string {
+    return "students"
+}
+```
+
+### Tiếng Việt — [example9](internal/examples/example9)
+
+大多数词都带声调符号（如 `Tên`），所以每一列都要写明列名：
+
+```go
+type HọcSinh struct {
+    ID       uint   `gorm:"primaryKey"`
+    Tên      string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Lớp      string `gorm:"column:grade;index:idx_students_grade"`
+    CâuLạcBộ string `gorm:"column:club"`
+}
+
+func (*HọcSinh) TableName() string {
+    return "students"
+}
+```
+
+> 💡 这门语言的文字得能写进 Go 的标识符。中文、日文、韩文、西班牙语、葡萄牙语、法语、德语、越南语都可以。元音写成组合符号的文字（如高棉语 ខ្មែរ、泰语 ไทย）写不成字段名，因为 Go 不允许标识符里出现这些符号。
 
 ---
 
@@ -179,13 +251,23 @@ gormmom 只负责把关命名。生成类型安全的列访问器、做仓储式
 - **[gormcngen](https://github.com/yylego/gormcngen)** 从模型生成 `XxxColumns` 类型安全列访问器。
 - **[gormrepo](https://github.com/yylego/gormrepo)** 用这些列做仓储式 CRUD。
 
-典型流程：写母语模型 → 让 gormmom 校验命名 → 让 gormcngen 生成列访问器 → 用 gormrepo 做 CRUD。端到端可运行的示例（中文、日文、韩文）都在 [examples](internal/examples/) 里。
+典型流程：写母语模型 → 让 gormmom 校验命名 → 让 gormcngen 生成列访问器 → 用 gormrepo 做 CRUD。生成测试会先跑校验，通过了才生成列，见 [example1](internal/examples/example1/internal/models/models.gen_test.go)。
 
 ---
 
 ## 📝 完整示例
 
-查看 [examples](internal/examples/) 目录，里面有完整的集成示例
+| 示例                                   | 讲什么                                                |
+| -------------------------------------- | ----------------------------------------------------- |
+| [example1](internal/examples/example1) | 入门（简体中文字段）：通过校验，再用生成的列配合 GORM |
+| [example2](internal/examples/example2) | 同样的用法，繁體中文字段                              |
+| [example3](internal/examples/example3) | 同样的用法，日语（日本語）字段                        |
+| [example4](internal/examples/example4) | 同样的用法，韩语（한국어）字段                        |
+| [example5](internal/examples/example5) | 同样的用法，西班牙语（Español）字段                   |
+| [example6](internal/examples/example6) | 同样的用法，葡萄牙语（Português）字段                 |
+| [example7](internal/examples/example7) | 同样的用法，法语（Français）字段                      |
+| [example8](internal/examples/example8) | 同样的用法，德语（Deutsch）字段                       |
+| [example9](internal/examples/example9) | 同样的用法，越南语（Tiếng Việt）字段                  |
 
 ---
 

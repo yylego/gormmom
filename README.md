@@ -11,25 +11,17 @@
 
 # 🌍 GORMMOM - Native Language GORM Naming Guardian
 
-**gormmom** lets you write GORM models in your **native language** (Chinese, Japanese, Korean, and more), then **guards** that every database name your model produces — the table name, each column name, each index name — stays database-safe. It runs as a plain unit test and never touches a database.
+**gormmom** lets you write GORM structs with fields in a **native language** (Chinese, Japanese, Korean and more), then checks that each database name the struct gives — the table name, each column name, each index name — stays database-safe. It runs as a plain unit test and does not touch a database.
 
-> 🎯 **Write in your mother tongue, ship database-safe schemas.** gormmom catches native-language names that a database would reject — before they ever reach the database.
+> 🎯 **Write the fields in the language you think in, ship database-safe schemas.** gormmom catches the native-language names a database would reject, before those names reach the database.
 
 ---
 
-## 🤖 Why gormmom is just a guardian now (the AI-era simplification)
+## 🤖 Design Intent
 
-gormmom used to be a **generation engine**: you wrote native-language fields with empty tags, and it auto-synthesized the column names and index names for you (pinyin for Chinese, romaji for Japanese, and so on).
+gormmom used to generate the column names and index names (pinyin, romaji and so on). Now an AI assistant writes a good database-safe name the moment you define the field, so that generation is gone.
 
-**The AI era made that generation pointless.** Today an AI assistant writes a good, database-safe column name for you the moment you define the field — directly, in context, far better than any fixed rule engine could. A machine-synthesized `z_zhang_hao` was never really what anyone wanted. So the whole generation layer lost its reason to exist.
-
-What AI does **not** automatically guarantee is the part that still bites you: **validation**. When you program in a native language, GORM may turn a field into a non-ASCII column name, or build a composite index name out of native-language field names — and the database rejects both. That failure shows up late, at migration or at runtime.
-
-So gormmom dropped generation entirely and now does exactly one thing: **catch those naming problems in a database-free unit test**, so they never blow up later.
-
-- ❌ Gone: code generation, pinyin/romaji column synthesis, pattern enums, the old generate commands.
-- ✅ Kept: one job — validate that the table / column / index names are database-safe.
-- ✅ Zero database connection — a pure static check that runs as an ordinary unit test.
+What can go wrong is a name that slips through: a field with no column name, and an index with no name, both give a non-ASCII name that the database rejects late, at migration / at runtime. gormmom does that one check, in a unit test with no database.
 
 ---
 
@@ -64,10 +56,10 @@ go get github.com/yylego/gormmom
 Native-language fields read beautifully, but the names GORM derives from them may be names the database refuses:
 
 ```go
-type T账户信息 struct {
-    ID   uint   `gorm:"primaryKey"`
-    Z账号 string `gorm:"uniqueIndex"` // ❌ no index name → GORM builds one from the field name → non-ASCII → rejected
-    N昵称 string `gorm:""`            // ❌ no column name → column falls back to a non-ASCII name → rejected
+type T学生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"uniqueIndex"` // ❌ no column name / index name → GORM builds both from the field name → non-ASCII → rejected
+    B班级 string `gorm:""`            // ❌ no column name → column falls back to a non-ASCII name → rejected
 }
 ```
 
@@ -76,19 +68,15 @@ type T账户信息 struct {
 Keep the native-language field names, but give explicit database-safe column / index / table names — and let gormmom guard them for you in a unit test:
 
 ```go
-type T账户信息 struct {
-    ID   uint   `gorm:"primaryKey"`
-    Z账号 string `gorm:"column:account;uniqueIndex:udx_account"`
-    N昵称 string `gorm:"column:nickname;index:idx_nickname"`
-    A年龄 int    `gorm:"column:age"`
-    D电话 string `gorm:"column:phone"`
-    E邮箱 string `gorm:"column:mailbox"`
-    J住址 string `gorm:"column:address"`
-    S状态 string `gorm:"column:status;index:idx_status"`
+type T学生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    B班级 string `gorm:"column:grade;index:idx_students_grade"`
+    S社团 string `gorm:"column:club"`
 }
 
-func (*T账户信息) TableName() string {
-    return "accounts" // database-safe ASCII table name
+func (*T学生) TableName() string {
+    return "students" // database-safe ASCII table name
 }
 ```
 
@@ -101,7 +89,7 @@ gormmom never connects to a database; it runs as a plain unit test:
 ```go
 func TestValidateNaming(t *testing.T) {
     objects := []any{
-        &T账户信息{},
+        &T学生{},
     }
 
     // Build the validation configs straight from the models (reflection only, reads nothing from disk).
@@ -112,63 +100,147 @@ func TestValidateNaming(t *testing.T) {
 }
 ```
 
-The rule is one regexp: every name must match `^[a-zA-Z0-9_]{1,N}$` (N defaults to 63, tunable via `Options.MaxNameLength`). A failing name returns a clear error naming the struct, the offending name, and the field when one applies — caught long before any migration.
+The rule is one regexp: each name must match `^[a-zA-Z0-9_]{1,N}$`. The check stops at the first bad name, and the error gives the struct, the name, the field when one applies, and what to write to fix it.
 
-By default gormmom derives names with GORM's default naming strategy. If your project runs GORM with a custom strategy, pass it via `Options.NamingStrategy` so the validation matches what your database actually sees.
+The options start from `gormmom.NewOptions()`: the length cap N defaults to 63, as in Postgres, and `WithMaxNameLength(n)` sets a different cap; the names come from GORM's default naming strategy, and `WithNamingStrategy(namer)` is just needed when the project runs GORM with a custom strategy.
 
 ---
 
 ## 🌍 Multi-Language Examples
 
-The pattern is the same in every language: native-language field names, plus explicit database-safe column / index / table names that gormmom validates.
+The pattern is the same in each language: native-language field names, plus explicit database-safe column / index / table names. Each language has its own example, with comments in that language.
 
-### 繁體中文
+### 繁體中文 — [example2](internal/examples/example2)
 
 ```go
-type T賬戶信息 struct {
+type T學生 struct {
+    ID  uint   `gorm:"primaryKey"`
+    X姓名 string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    N年級 string `gorm:"column:grade;index:idx_students_grade"`
+    S社團 string `gorm:"column:club"`
+}
+
+func (*T學生) TableName() string {
+    return "students"
+}
+```
+
+### 日本語 — [example3](internal/examples/example3)
+
+```go
+type T生徒 struct {
     ID   uint   `gorm:"primaryKey"`
-    Z賬號 string `gorm:"column:account;uniqueIndex:udx_account"`
-    N暱稱 string `gorm:"column:nickname;index:idx_nickname"`
-    A年齡 int    `gorm:"column:age"`
-    S狀態 string `gorm:"column:status;index:idx_status"`
+    N名前  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    G学年  string `gorm:"column:grade;index:idx_students_grade"`
+    Tクラブ string `gorm:"column:club"`
 }
 
-func (*T賬戶信息) TableName() string {
-    return "accounts"
-}
-```
-
-### 日本語
-
-```go
-type Tアカウント情報 struct {
-    ID         uint   `gorm:"primaryKey"`
-    Aアカウント  string `gorm:"column:account;uniqueIndex:udx_account"`
-    Nニックネーム string `gorm:"column:nickname;index:idx_nickname"`
-    N年齢       int    `gorm:"column:age"`
-    Sステータス   string `gorm:"column:status;index:idx_status"`
-}
-
-func (*Tアカウント情報) TableName() string {
-    return "accounts"
+func (*T生徒) TableName() string {
+    return "students"
 }
 ```
 
-### 한국어
+### 한국어 — [example4](internal/examples/example4)
 
 ```go
-type T계정정보 struct {
+type T학생 struct {
+    ID   uint   `gorm:"primaryKey"`
+    I이름  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    H학년  string `gorm:"column:grade;index:idx_students_grade"`
+    D동아리 string `gorm:"column:club"`
+}
+
+func (*T학생) TableName() string {
+    return "students"
+}
+```
+
+### Español — [example5](internal/examples/example5)
+
+Spanish letters have a case, so the fields need no ASCII prefix. Most words are plain ASCII, but a field with an accent such as `Año` gives a non-ASCII column, so give it an explicit name too:
+
+```go
+type Estudiante struct {
+    ID     uint   `gorm:"primaryKey"`
+    Nombre string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Año    string `gorm:"column:grade;index:idx_students_grade"`
+    Club   string `gorm:"column:club"`
+}
+
+func (*Estudiante) TableName() string {
+    return "students"
+}
+```
+
+### Português — [example6](internal/examples/example6)
+
+A field with an accent such as `Série` gives a non-ASCII column, so give it an explicit name:
+
+```go
+type Aluno struct {
     ID    uint   `gorm:"primaryKey"`
-    G계정   string `gorm:"column:account;uniqueIndex:udx_account"`
-    N닉네임  string `gorm:"column:nickname;index:idx_nickname"`
-    N나이   int    `gorm:"column:age"`
-    S상태   string `gorm:"column:status;index:idx_status"`
+    Nome  string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Série string `gorm:"column:grade;index:idx_students_grade"`
+    Clube string `gorm:"column:club"`
 }
 
-func (*T계정정보) TableName() string {
-    return "accounts"
+func (*Aluno) TableName() string {
+    return "students"
 }
 ```
+
+### Français — [example7](internal/examples/example7)
+
+A field with an accent such as `Prénom` gives a non-ASCII column, so give it an explicit name:
+
+```go
+type Élève struct {
+    ID     uint   `gorm:"primaryKey"`
+    Prénom string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Classe string `gorm:"column:grade;index:idx_students_grade"`
+    Club   string `gorm:"column:club"`
+}
+
+func (*Élève) TableName() string {
+    return "students"
+}
+```
+
+### Deutsch — [example8](internal/examples/example8)
+
+A struct name with an umlaut such as `Schüler` gives a non-ASCII table, so give it a `TableName()` method:
+
+```go
+type Schüler struct {
+    ID     uint   `gorm:"primaryKey"`
+    Name   string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Klasse string `gorm:"column:grade;index:idx_students_grade"`
+    Verein string `gorm:"column:club"`
+}
+
+func (*Schüler) TableName() string {
+    return "students"
+}
+```
+
+### Tiếng Việt — [example9](internal/examples/example9)
+
+Most words have a tone mark, such as `Tên`, so give each column an explicit name:
+
+```go
+type HọcSinh struct {
+    ID       uint   `gorm:"primaryKey"`
+    Tên      string `gorm:"column:name;uniqueIndex:udx_students_name"`
+    Lớp      string `gorm:"column:grade;index:idx_students_grade"`
+    CâuLạcBộ string `gorm:"column:club"`
+}
+
+func (*HọcSinh) TableName() string {
+    return "students"
+}
+```
+
+> 💡 The language needs letters that Go accepts in a name. Chinese, Japanese, Korean, Spanish, Portuguese, French, German and Vietnamese work. Scripts that write the vowels as combining marks, such as ខ្មែរ and ไทย, can not be written as field names, since Go rejects those marks in a name.
 
 ---
 
@@ -179,13 +251,23 @@ gormmom only guards naming. Generating type-safe column accessors and running re
 - **[gormcngen](https://github.com/yylego/gormcngen)** generates the `XxxColumns` type-safe column accessors from your model.
 - **[gormrepo](https://github.com/yylego/gormrepo)** uses those columns for repo-style CRUD.
 
-A typical flow: write a native-language model → let gormmom validate the naming → let gormcngen generate the columns → use gormrepo for CRUD. End-to-end runnable examples (Chinese, Japanese, Korean) live in [examples](internal/examples/).
+The common flow: write a native-language struct → let gormmom validate the naming → let gormcngen generate the columns → do CRUD with gormrepo. The generation test runs the check first and generates the columns just when it passes, see [example1](internal/examples/example1/internal/models/models.gen_test.go).
 
 ---
 
 ## 📝 Complete Examples
 
-Check [examples](internal/examples/) DIR with complete integration examples
+| Example                                | Topic                                                                                               |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [example1](internal/examples/example1) | The basics with zh-Hans (简体中文) fields: pass the check, then use the generated columns with GORM |
+| [example2](internal/examples/example2) | The same with zh-Hant (繁體中文) fields                                                             |
+| [example3](internal/examples/example3) | The same with Japanese (日本語) fields                                                              |
+| [example4](internal/examples/example4) | The same with Korean (한국어) fields                                                                |
+| [example5](internal/examples/example5) | The same with Spanish (Español) fields                                                              |
+| [example6](internal/examples/example6) | The same with Portuguese (Português) fields                                                         |
+| [example7](internal/examples/example7) | The same with French (Français) fields                                                              |
+| [example8](internal/examples/example8) | The same with German (Deutsch) fields                                                               |
+| [example9](internal/examples/example9) | The same with Vietnamese (Tiếng Việt) fields                                                        |
 
 ---
 

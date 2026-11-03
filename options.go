@@ -1,51 +1,51 @@
 package gormmom
 
-import "gorm.io/gorm/schema"
+import (
+	"github.com/yylego/erero"
+	"gorm.io/gorm/schema"
+)
 
-// defaultNameLength is the database name length cap (Postgres uses 63).
+// Options carries the validation settings, set via NewOptions and the With methods.
 //
-// defaultNameLength 是数据库标识符长度上限（Postgres 为 63）
-const defaultNameLength = 63
-
-// Options carries validation settings.
-// MaxNameLength caps how long a table name, column name or index name can be;
-// databases reject names beyond it.
-// NamingStrategy is the GORM naming strategy used to derive the names that get
-// validated. It defaults to GORM's own default; set it only when your project
-// runs GORM with a custom naming strategy, so validation matches runtime.
-//
-// Options 承载校验设置。
-// MaxNameLength 限制表名、列名或索引名的长度上限，超过该长度的名字数据库不接受。
-// NamingStrategy 是推导待校验名字所用的 GORM 命名策略，默认与 GORM 自身的默认值相同；
-// 只有当你的项目用了自定义命名策略时才需要设置它，让校验结果和运行时一致。
+// Options 承载校验设置，通过 NewOptions 和 With 系列方法设置
 type Options struct {
-	MaxNameLength  int          // Name length cap // 名字长度上限
-	NamingStrategy schema.Namer // GORM naming strategy // GORM 命名策略
+	maxIdentLength int          // Length cap of the database identifiers: table, column and index names // 数据库标识符（表名、列名、索引名）的长度上限
+	namingStrategy schema.Namer // GORM naming strategy // GORM 命名策略
 }
 
-// NewOptions builds Options with the default name length cap and the default
-// GORM naming strategy.
+// NewOptions builds Options with the defaults: a name length cap of 63 (as in Postgres),
+// and the default GORM naming strategy.
 //
-// NewOptions 构造带默认长度上限和默认 GORM 命名策略的 Options
+// NewOptions 用默认值构造 Options：名字长度上限 63（与 Postgres 相同），以及 GORM 默认的命名策略
 func NewOptions() *Options {
 	return &Options{
-		MaxNameLength:  defaultNameLength,
-		NamingStrategy: schema.NamingStrategy{},
+		maxIdentLength: 63,
+		namingStrategy: schema.NamingStrategy{},
 	}
 }
 
-// WithMaxNameLength sets the name length cap and returns the options for chaining.
+// WithMaxNameLength sets how long a table name, column name and index name can be, since databases reject names beyond it.
+// The cap must be positive.
 //
-// WithMaxNameLength 设置名字长度上限，返回自身以便链式调用
-func (options *Options) WithMaxNameLength(maxNameLength int) *Options {
-	options.MaxNameLength = maxNameLength
+// WithMaxNameLength 设置表名、列名、索引名的长度上限，超过上限的名字数据库不接受
+// 上限必须为正数
+func (options *Options) WithMaxNameLength(maxIdentLength int) *Options {
+	if maxIdentLength <= 0 {
+		panic(erero.Errorf("WithMaxNameLength needs a positive cap, got %d", maxIdentLength))
+	}
+	options.maxIdentLength = maxIdentLength
 	return options
 }
 
-// WithNamingStrategy sets the GORM naming strategy and returns the options for chaining.
+// WithNamingStrategy sets the GORM naming strategy that derives the names to validate.
+// Set it when the project runs GORM with a custom strategy, so the validation matches runtime.
 //
-// WithNamingStrategy 设置 GORM 命名策略，返回自身以便链式调用
+// WithNamingStrategy 设置推导待校验名字所用的 GORM 命名策略
+// 项目用了自定义命名策略时设置它，让校验结果和运行时一致
 func (options *Options) WithNamingStrategy(namingStrategy schema.Namer) *Options {
-	options.NamingStrategy = namingStrategy
+	if namingStrategy == nil {
+		panic(erero.New("WithNamingStrategy needs the strategy the project runs GORM with, got nil"))
+	}
+	options.namingStrategy = namingStrategy
 	return options
 }
