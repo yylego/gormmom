@@ -102,7 +102,7 @@ func TestValidateNaming(t *testing.T) {
 
 The rule is one regexp: each name must match `^[a-zA-Z0-9_]{1,N}$`. The check stops at the first bad name, and the error gives the struct, the name, the field when one applies, and what to write to fix it.
 
-The options start from `gormmom.NewOptions()`: the length cap N defaults to 63, as in Postgres, and `WithMaxNameLength(n)` sets a different cap; the names come from GORM's default naming strategy, and `WithNamingStrategy(namer)` is just needed when the project runs GORM with a custom strategy.
+The options start from `gormmom.NewOptions()`: the length cap N defaults to 63, as in Postgres, and `WithMaxIdentLength(n)` sets a different cap; the names come from GORM's default naming strategy, and `WithNamingStrategy(namer)` is just needed when the project runs GORM with a custom strategy.
 
 ---
 

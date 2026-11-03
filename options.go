@@ -24,14 +24,14 @@ func NewOptions() *Options {
 	}
 }
 
-// WithMaxNameLength sets how long a table name, column name and index name can be, since databases reject names beyond it.
+// WithMaxIdentLength sets how long a table name, column name and index name can be, since databases reject names beyond it.
 // The cap must be positive.
 //
-// WithMaxNameLength 设置表名、列名、索引名的长度上限，超过上限的名字数据库不接受
+// WithMaxIdentLength 设置表名、列名、索引名的长度上限，超过上限的名字数据库不接受
 // 上限必须为正数
-func (options *Options) WithMaxNameLength(maxIdentLength int) *Options {
+func (options *Options) WithMaxIdentLength(maxIdentLength int) *Options {
 	if maxIdentLength <= 0 {
-		panic(erero.Errorf("WithMaxNameLength needs a positive cap, got %d", maxIdentLength))
+		panic(erero.Errorf("WithMaxIdentLength needs a positive cap, got %d", maxIdentLength))
 	}
 	options.maxIdentLength = maxIdentLength
 	return options

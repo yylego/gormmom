@@ -14,16 +14,16 @@ func TestNewOptions(t *testing.T) {
 	require.NoError(t, gormmom.NewConfig(&T学生{}, gormmom.NewOptions()).Validate())
 }
 
-func TestOptions_WithMaxNameLength(t *testing.T) {
+func TestOptions_WithMaxIdentLength(t *testing.T) {
 	// "idx_students_grade", the longest name of T学生, has 18 characters: it passes a cap of 18, and fails a cap of 17
 	// T学生 里最长的名字 "idx_students_grade" 有 18 个字符：上限 18 能通过，上限 17 就不行
-	require.NoError(t, gormmom.NewConfig(&T学生{}, gormmom.NewOptions().WithMaxNameLength(18)).Validate())
+	require.NoError(t, gormmom.NewConfig(&T学生{}, gormmom.NewOptions().WithMaxIdentLength(18)).Validate())
 
-	err := gormmom.NewConfig(&T学生{}, gormmom.NewOptions().WithMaxNameLength(17)).Validate()
+	err := gormmom.NewConfig(&T学生{}, gormmom.NewOptions().WithMaxIdentLength(17)).Validate()
 	require.ErrorContains(t, err, `index "idx_students_grade"`)
 
 	require.Panics(t, func() {
-		gormmom.NewOptions().WithMaxNameLength(0)
+		gormmom.NewOptions().WithMaxIdentLength(0)
 	})
 }
 

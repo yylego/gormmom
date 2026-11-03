@@ -102,7 +102,7 @@ func TestValidateNaming(t *testing.T) {
 
 规则就是一条正则：每个名字都要匹配 `^[a-zA-Z0-9_]{1,N}$`。查到第一个不合格的名字就报错，错误里写明结构体、名字、涉及的字段，以及该补什么。
 
-选项从 `gormmom.NewOptions()` 开始：长度上限 N 默认 63，跟 Postgres 一样，`WithMaxNameLength(n)` 可以换成别的上限；名字按 GORM 默认的命名策略推导，`WithNamingStrategy(namer)` 只给用了自定义命名策略的项目用。
+选项从 `gormmom.NewOptions()` 开始：长度上限 N 默认 63，跟 Postgres 一样，`WithMaxIdentLength(n)` 可以换成别的上限；名字按 GORM 默认的命名策略推导，`WithNamingStrategy(namer)` 只给用了自定义命名策略的项目用。
 
 ---
 
